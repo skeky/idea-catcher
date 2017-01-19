@@ -39,7 +39,8 @@ echo " 100%"
 sleep 3
 #
 case $YUMSTATUS in
-0)
+0) 
+echo " There are no available updates at this time."
 # no updates! 
 exit 0
 ;;
@@ -52,7 +53,7 @@ echo "
 There are $NUMBERS updates available on host $HOSTNAME at $DATE
 The available updates are:
 $UPDATES
-" >& $AVAILABLEUPDATELOG
+" | tee $AVAILABLEUPDATELOG
 ;;
 esac
 ##################################################
