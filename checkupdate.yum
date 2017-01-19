@@ -72,3 +72,26 @@ echo -e "Please see /var/log/checkupdate for relevant log files."
 #End of Script 
 ##################################################
 #Notes to go here
+#
+####Example of output if there ARE updates: 
+#/etc/cron.daily/checkupdate.yum
+#Checking for available updates
+################################ 100%
+#There are 5 updates available on host <hostname> at <date and time>
+#The available updates are:
+#kernel.x86_64                        2.6.18-416.el5                   
+#nss.x86_64                           3.21.3-2.el5_11                  
+#redhat-release.x86_64                5Server-5.11.0.6                 
+#tzdata.x86_64                        2016j-1.el5                      
+#tzdata-java.x86_64                   2016j-1.el5                      
+### Deleting available update log files older than 2days.
+### Deleting check update log files older than 2days.
+#Please see /var/log/checkupdate for relevant log files.
+#
+####Example of output if there are NO updates: 
+#/etc/cron.daily/checkupdate.yum
+#Checking for available updates
+################################ 100%
+#There are no available updates at this time.
+#
+
