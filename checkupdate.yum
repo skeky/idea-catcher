@@ -1,0 +1,73 @@
+#!/bin/bash
+##################################################
+# Name: checkupdate.yum
+# Description: Script to be kept in /etc/cron.daily 
+#
+# When the scheduled cronjobs run each day this script will check for updates from the DISA repo.
+# If there are updates available, the output will be written to /var/log/checkupdate/
+# SPLUNK is configured to look for these files daily (separate configuration on the SPLUNK server); 
+# if, the file is found, the specified email addresses will recieve an alert for further action. 
+# 
+# Success of this script is dependent on scheduled cronjobs and the existance of /var/log/checkupdate. 
+# Success of the notification to the admins is dependant on the way SPLUNK is configured. 
+# 
+# For "expected output" notes please see the end of the file.
+# Created by Kylie Subjinske 18 JAN 17
+##################################################
+# Set Variables
+#
+AVAILABLEUPDATELOG="/var/log/checkupdate/available$$"
+YUMCHECKLOG="/var/log/checkupdate/log$$"
+YUM="/usr/bin/yum"
+$YUM check-update >& $YUMCHECKLOG
+YUMSTATUS="$?"
+HOSTNAME=$(/bin/hostname)
+#
+##################################################
+# Main Script
+#
+echo "Checking for available updates"
+BAR='################################'    # Each '#' cooresponds with the number of characters displayed
+                                          # This has 32, but if you wanted there to be 100, you would add
+                                          # 68 more and edit the line below to reflect the same number
+for i in {1..32}; do
+    echo -ne "\r${BAR:0:$i}" # print $i chars of $BAR from 0 position
+    sleep .2
+done
+sleep 1
+echo " 100%"
+sleep 3
+#
+case $YUMSTATUS in
+0)
+# no updates! 
+exit 0
+;;
+*)
+DATE=$(date)
+NUMBERS=$(cat $YUMCHECKLOG | egrep '(.i386|.x86_64|.noarch|.src)' | wc -l)
+UPDATES=$(cat $YUMCHECKLOG | egrep '(.i386|.x86_64|.noarch|.src)')
+
+echo "
+There are $NUMBERS updates available on host $HOSTNAME at $DATE
+The available updates are:
+$UPDATES
+" >& $AVAILABLEUPDATELOG
+;;
+esac
+##################################################
+#Cleanup
+#
+printf "### Deleting available update log files older than 2days.\n"
+sleep 2
+find /var/log/checkupdate -name '*available' -mtime -2 -print -exec rm {} \;
+#
+printf "### Deleting check update log files older than 2days.\n"
+sleep 2
+find /var/log/checkupdate -name '*log' -mtime -2 -print -exec rm {} \;
+##################################################
+#Final Messages
+echo -e "Please see /var/log/checkupdate for relevant log files."
+#End of Script 
+##################################################
+#Notes to go here
